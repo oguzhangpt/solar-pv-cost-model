@@ -223,6 +223,7 @@ Kinds: **input** = country-specific value on the Inputs sheet (the app writes th
 | `mono.moduleOverhead` | Overhead rate — module | scalar | module | Other operating cost | % | 0.1 | yes | `Assumptions!E47` |
 | `mono.esg` | ESG certification cost factor | scalar | module | Other operating cost | USD/W per GW | 6.000e-4 | yes | `Assumptions!E49` |
 | `mono.irradiance` | Irradiance (standard test conditions) | scalar | wafer | Production / yield parameter | W/m² | 1000 | no (fixed) | `Assumptions!E28` |
+| `global.polyPrice` | Polysilicon price change | global | poly | Intermediate product | USD/kg | 0 | yes | `Extension: Cost Model_Calculations rows 26/122 + change × g/W (rows 10/106) ÷ 1000` |
 | `global.margin` | Operating profit mark-up (all stages) | global | all | Other operating cost | % | 0.15 | yes | `Cost Model_Calculations rows 23, 46, 67, 90, 119, 142, 163, 186 (constant 0.15)` |
 
 ## 4. Workbook cells not used by any cost formula

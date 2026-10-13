@@ -197,7 +197,7 @@ const controlRows = [];
         for (const year of [2022, 2025, 2030]) {
           st.year = year;
           const base = model.compute(st);
-          const s2 = clone(st); s2.edits = { [p.id]: { mode: "pct", value: 10 } };
+          const s2 = clone(st); s2.edits = { [p.id]: p.deltaOnly ? { mode: "abs", value: 1 } : { mode: "pct", value: 10 } };
           const o2 = model.compute(s2);
           maxEffect = Math.max(maxEffect, Math.abs(o2.total - base.total));
           maxPower = Math.max(maxPower, Math.abs(o2.modulePowerW - base.modulePowerW));
@@ -235,6 +235,17 @@ const controlRows = [];
   check("6. Calculation modes", "C. Purchased cell total = cell price + module stage only", rel(o5.total, 0.12 + o5.stages[3].value) < TOL,
     `${fmt(o5.total)} = 0.120000 + ${fmt(o5.stages[3].value)}`);
   void ow2;
+  // Polysilicon price change: +1 USD/kg must add exactly g/W ÷ 1000 USD/Wp (domestic and imported)
+  for (const [country, src] of [["China", "Domestic"], ["India", "China"]]) {
+    for (const tech of ["topcon", "mono"]) {
+      const b0 = clone(st); b0.country = country; b0.tech = tech; b0.sources[tech] = { poly: src, wafer: "Domestic", cell: "Domestic" };
+      const b1 = clone(b0); b1.edits = { "global.polyPrice": { mode: "abs", value: 1 } };
+      const gw = engine.evaluate(model.patch(b0)).num("Cost Model_Calculations!I" + M.TECH[tech].gPerW);
+      const d = model.compute(b1).total - model.compute(b0).total;
+      check("6. Calculation modes", `Polysilicon price +1 USD/kg adds g/W÷1000 to the module (${country}, poly ${src}, ${tech})`, Math.abs(d - gw / 1000) < 1e-15,
+        `Δ = ${d.toExponential(6)} USD/Wp, g/W = ${gw}`);
+    }
+  }
   const z = clone(st); z.edits = { "global.margin": { mode: "abs", value: 0 } };
   const oz = model.compute(z);
   check("6. Calculation modes", "Operating-profit parameter at 0 removes all operating-profit lines", oz.categories.margin === 0, `margin category = ${oz.categories.margin}`);

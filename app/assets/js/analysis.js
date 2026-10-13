@@ -21,7 +21,7 @@
   /** Parameters that can be meaningfully varied for the active state. */
   function sensitivityParams(model, state) {
     return PM.paramsForTech(state.tech).filter(function (p) {
-      if (!p.editable) return false;
+      if (!p.editable || p.deltaOnly) return false;
       if (p.kind === "import") return model.isImported(state, state.tech, p.stage);
       return true;
     });

@@ -254,6 +254,11 @@
   }
 
   var GLOBAL_PARAMS = [{
+    id: "global.polyPrice", tech: "both", kind: "global", cell: "Params!B2", deltaOnly: true, baseline: 0,
+    label: "Polysilicon price change", group: "materials", unit: "USD/kg", stage: "poly", cls: "Intermediate product", editable: true,
+    effect: "Adds a change in the polysilicon price (USD per kg) to the polysilicon stage and converts it to USD/Wp with the workbook's own g/W ratio (+1 USD/kg × 2.1 g/W ÷ 1000 = +0.0021 USD/Wp for TOPCon 2025). Works for domestic and imported polysilicon.",
+    source: "Extension: " + CALC + " rows 26/122 + change × g/W (rows 10/106) ÷ 1000"
+  }, {
     id: "global.margin", tech: "both", kind: "global", cell: "Params!B1", label: "Operating profit mark-up (all stages)",
     group: "other", unit: "%", display: "pct", stage: "all", cls: "Other operating cost", editable: true, baseline: 0.15,
     effect: "Hardcoded as ×0.15 in every 'Operating profit' row of the workbook; exposed here as one documented parameter. Overheads are computed on the price incl. this mark-up.",
@@ -285,6 +290,14 @@
           if (!/\*0\.15$/.test(f)) throw new Error("Unexpected operating profit formula at " + k + ": " + f);
           formulas[k] = f.replace(/\*0\.15$/, "*Params!B1");
         });
+      });
+    });
+    // Polysilicon price change (USD/kg) added to the stage price in USD/Wp via g/W.
+    ["topcon", "mono"].forEach(function (t) {
+      var T = TECH[t];
+      YEAR_COLS.forEach(function (c) {
+        var k = CALC + "!" + c + T.stages.poly.total;
+        formulas[k] = "=(" + self.engine.formulaOf(k).slice(1) + ")+Params!B2*" + c + T.gPerW + "/1000";
       });
     });
     this._baseFormulas = formulas;
@@ -350,7 +363,7 @@
 
   Model.prototype._baselineEval = function (country) {
     if (!this._baselineCache[country]) {
-      this._baselineCache[country] = this.engine.evaluate({ values: { "Inputs!C3": country, "Params!B1": 0.15 }, formulas: this._baseFormulas });
+      this._baselineCache[country] = this.engine.evaluate({ values: { "Inputs!C3": country, "Params!B1": 0.15, "Params!B2": 0 }, formulas: this._baseFormulas });
     }
     return this._baselineCache[country];
   };
@@ -365,7 +378,7 @@
 
   /** Build the engine patch for a state. */
   Model.prototype.patch = function (state) {
-    var values = { "Inputs!C3": state.country, "Params!B1": 0.15 }, scale = {}, self = this;
+    var values = { "Inputs!C3": state.country, "Params!B1": 0.15, "Params!B2": 0 }, scale = {}, self = this;
     ["topcon", "mono"].forEach(function (t) {
       var sc = TECH[t].sourceCells, src = state.sources[t];
       values[sc.poly] = src.poly; values[sc.wafer] = src.wafer; values[sc.cell] = src.cell;
@@ -376,7 +389,7 @@
       var ev = self.editValue(p, e, state);
       if (p.kind === "input") values[p.inputCell] = ev.value;
       else if (p.kind === "scalar") values[p.cell] = ev.value;
-      else if (p.kind === "global") values["Params!B1"] = ev.value;
+      else if (p.kind === "global") values[p.cell] = ev.value;
       else if (p.kind === "series" || p.kind === "import") p.cells.forEach(function (k) { scale[k] = (scale[k] || 1) * ev.factor; });
     });
     return { values: values, scale: scale, formulas: this._baseFormulas };

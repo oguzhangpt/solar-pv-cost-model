@@ -52,6 +52,8 @@
     if (!p.editable) return '<span class="num">' + F.num(F.disp(p, pv.cur), p.unit) + "</span> " + App.tag("fix", p.noEffect ? "No effect in model" : "Fixed");
     if (p.kind === "import" && !model.isImported(st, st.tech, p.stage))
       return '<span class="num muted">' + (isFinite(pv.base) ? F.num(pv.base) : "n/a") + "</span> " + App.tag("fix", "Inactive — stage is domestic");
+    if (p.deltaOnly) return '<div class="param-ctrl"><span class="small muted">+/−</span><input type="number" step="0.5" value="' + Number(pv.cur.toPrecision(8)) + '" data-bind="param-abs" data-id="' + p.id + '" data-focus="abs:' + p.id + '" aria-label="' + esc(p.label) + '">' +
+      (pv.edited ? '<button class="btn small ghost" data-action="reset-param" data-id="' + p.id + '" title="Reset">↺</button>' : "") + "</div>";
     var pct = pv.edited ? (pv.cur / pv.base - 1) * 100 : 0;
     var step = Math.abs(F.disp(p, pv.base)) > 0 ? Math.pow(10, Math.floor(Math.log10(Math.abs(F.disp(p, pv.base)))) - 2) : 0.01;
     return '<div class="param-ctrl">' +
@@ -69,7 +71,8 @@
     App.set(function (s) {
       var base = model.baselineValue(p, s);
       if (Math.abs(val - base) <= 1e-12 * Math.max(1, Math.abs(base))) { delete s.edits[p.id]; return; }
-      if (p.kind === "series" || p.kind === "import") s.edits[p.id] = { mode: "pct", value: (val / base - 1) * 100 };
+      if (p.deltaOnly) s.edits[p.id] = { mode: "abs", value: val };
+      else if (p.kind === "series" || p.kind === "import") s.edits[p.id] = { mode: "pct", value: (val / base - 1) * 100 };
       else s.edits[p.id] = { mode: "abs", value: val };
     });
   };
@@ -131,7 +134,7 @@
 
   // ======================================================== DASHBOARD
   App.register("dashboard", {
-    title: "Executive dashboard", icon: "◧", section: "Analyse",
+    title: "Executive dashboard", icon: "◧", section: "Detailed analysis",
     render: function () {
       var st = App.state, cur = App.current(), base = App.baseline(), bs = App.baselineState();
       var groups = App.groupTotals(cur.categories), bgroups = App.groupTotals(base.categories);
@@ -193,7 +196,7 @@
 
   // ======================================================== BREAKDOWN
   App.register("breakdown", {
-    title: "Cost breakdown", icon: "▤", section: "Analyse",
+    title: "Cost breakdown", icon: "▤", section: "Detailed analysis",
     render: function () {
       var st = App.state, cur = App.current(), base = App.baseline();
       var h = '<div class="page-head"><div><h1>Manufacturing cost breakdown</h1><p>Drill into each value-chain stage: cost components, how each is calculated (with the original Excel formula and cell), and the assumptions that drive it. ' +
@@ -291,7 +294,7 @@
   }
 
   App.register("countries", {
-    title: "Country comparison", icon: "◍", section: "Analyse",
+    title: "Country comparison", icon: "◍", section: "Detailed analysis",
     render: function () {
       var st = App.state, ui = App.ui.country, all = model.countries();
       if (!ui.selected) ui.selected = all.slice();
@@ -400,7 +403,7 @@
   };
 
   // ======================================================== INPUTS
-  var CORE = ["polyElecPrice", "elecPrice", "polySalary", "salary", "siPrice", "silverPrice", "moduleOther", "efficiency", "gPerW", "polyEquip", "eqWafer", "eqCell", "eqModule", "capacity2025", "import.poly", "import.wafer", "import.cell"];
+  var CORE = ["polyPrice", "polyElecPrice", "elecPrice", "polySalary", "salary", "siPrice", "silverPrice", "moduleOther", "efficiency", "gPerW", "polyEquip", "eqWafer", "eqCell", "eqModule", "capacity2025", "import.poly", "import.wafer", "import.cell"];
   App.register("inputs", {
     title: "Input control center", icon: "⚙", section: "Configure",
     render: function () {
@@ -596,7 +599,7 @@
       h += '<div class="card section"><div class="card-head"><h2>Active changes</h2><span class="sub">' + edits.length + "</span></div>" + (edits.length ? '<table class="data"><tbody>' + edits.map(function (id) {
         var p = PM.PARAM_BY_ID[id]; if (!p) return "";
         var pv = paramValue(p, st);
-        return "<tr><td>" + esc(p.label) + '<div class="small muted">' + F.num(F.disp(p, pv.base), p.unit) + " → " + F.num(F.disp(p, pv.cur), p.unit) + " " + esc(F.unit(p)) + '</div></td><td class="num">' + F.signedPct(pv.cur / pv.base - 1) + '</td><td><button class="btn small ghost" data-action="remove-edit" data-id="' + id + '">✕</button></td></tr>';
+        return "<tr><td>" + esc(p.label) + '<div class="small muted">' + F.num(F.disp(p, pv.base), p.unit) + " → " + F.num(F.disp(p, pv.cur), p.unit) + " " + esc(F.unit(p)) + '</div></td><td class="num">' + (p.deltaOnly ? F.signed(pv.cur, 2) + " " + esc(p.unit) : F.signedPct(pv.cur / pv.base - 1)) + '</td><td><button class="btn small ghost" data-action="remove-edit" data-id="' + id + '">✕</button></td></tr>';
       }).join("") + "</tbody></table>" : '<p class="muted small">No inputs changed — the scenario equals the workbook for this configuration.</p>') +
         (st.mode !== "workbook" ? '<p class="small" style="margin-top:8px">' + App.tag("ext", MODE_INFO[st.mode].label) + "</p>" : "") + "</div>";
       h += '<div class="card section"><h2>Save scenario</h2><div style="display:flex;gap:8px;margin-top:10px"><input type="text" placeholder="' + esc(defaultScenarioName()) + '" value="' + esc(ui.name) + '" data-bind="lab-name" style="flex:1"><button class="btn primary" data-action="lab-save">Save</button></div>' +

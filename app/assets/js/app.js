@@ -190,7 +190,7 @@
   App.register = function (id, def) { App.pages[id] = def; App.order.push(id); };
   App.route = function () {
     var h = (location.hash || "").replace(/^#\/?/, "");
-    return App.pages[h] ? h : "dashboard";
+    return App.pages[h] ? h : (App.defaultRoute || "dashboard");
   };
 
   App.render = function (opts) {

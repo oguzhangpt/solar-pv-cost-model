@@ -16,6 +16,7 @@ An interactive application built on the **IRENA TSSC Solar PV Manufacturing Cost
 
 | Sayfa | Ne yapar |
 |---|---|
+| **Satınalma özeti** (açılış sayfası) | Sade görünüm: aşama payları, malzeme payları, “fiyat +1 $ artarsa modül ne kadar artar” tabloları, hızlı fiyat senaryosu, ülke karşılaştırması |
 | Executive dashboard | Toplam maliyet (USD/Wp ve USD/modül), aşama bazında şelale grafiği, maliyet payları, 2020–2030 trendi |
 | Cost breakdown | Polisilikon → wafer → hücre → modül; her kalemin Excel formülü ve hücresi |
 | Country comparison | 6 ülkenin sıralaması, detay tablo, "neden daha pahalı?" açıklaması |
