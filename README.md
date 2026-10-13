@@ -7,10 +7,10 @@ An interactive application built on the **IRENA TSSC Solar PV Manufacturing Cost
 ## 🇹🇷 Hızlı başlangıç (kurulum gerekmez)
 
 1. Depoyu indirin: GitHub'da **Code → Download ZIP**, ardından ZIP'i bir klasöre açın.
-2. **`Uygulamayi_Ac.html`** dosyasına çift tıklayın (veya `app/index.html`).
-3. Uygulama tarayıcıda açılır: Chrome, Edge, Firefox veya Safari. **İnternet bağlantısı, Python ya da kurulum gerekmez**; tüm dosyalar `app/` klasöründedir.
+2. **`Uygulamayi_Ac.html`** dosyasına çift tıklayın.
+3. Uygulama tarayıcıda açılır: Chrome, Edge, Firefox veya Safari. **İnternet bağlantısı, Python ya da kurulum gerekmez.**
 
-Sadece `app/` klasörünü kopyalamanız da yeterlidir; klasör kendi başına çalışır.
+`Uygulamayi_Ac.html` tek başına çalışan bir dosyadır; bütün uygulama, veriler ve grafik kütüphanesi bu dosyanın içindedir. ZIP'i açmadan da çalışır; e-postayla da gönderebilirsiniz. ZIP'i bir klasöre açtıysanız `app/index.html` ile de aynı uygulamayı açabilirsiniz.
 
 **Sayfalar:**
 
@@ -31,7 +31,7 @@ Senaryolar tarayıcıda (localStorage) saklanır; başka bir bilgisayara taşım
 
 ## Quick start (English)
 
-**No installation.** Open `Uygulamayi_Ac.html` or `app/index.html` in any modern browser. Everything the app needs, including the Plotly charting library, is bundled in `app/`, so it also works offline from a USB stick or shared drive.
+**No installation.** Double-click `Uygulamayi_Ac.html`: it is a single self-contained file (≈5 MB) holding the whole app, the workbook data and Plotly, so it works offline, even from inside a ZIP or as an e-mail attachment. The same app is also available unbundled as `app/index.html`.
 
 ### Re-building from the workbook (developers only)
 
@@ -42,6 +42,7 @@ python3 tools/extract_workbook.py        # workbook → app/data/model_data.js (
 python3 tools/libreoffice_recalc.py      # optional: reference recalculations → validation/fixtures/
 node validation/run_validation.js        # 156 checks → docs/VALIDATION_REPORT.md (exit code ≠ 0 on failure)
 node tools/generate_docs.js              # → docs/INPUT_OUTPUT_MAP.md
+python3 tools/build_single_file.py       # app/ → Uygulamayi_Ac.html (single self-contained file)
 ```
 
 ## Architecture
