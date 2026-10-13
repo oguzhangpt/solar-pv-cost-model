@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar PV Cost Intelligence</title>
+  <meta name="description" content="Interactive solar PV manufacturing cost analysis built on the IRENA TSSC Solar PV Manufacturing Cost Model v1 workbook.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c5cab'/%3E%3Cpath d='M7 21h18l-3-10H10z' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M9 16h14M16 11v10' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 32 32"><path d="M5 23h22l-4-13H9z" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M7 17h18M16 10v13" stroke="#fff" stroke-width="1.8"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">Solar PV Cost Intelligence</div>
+          <div class="brand-sub">IRENA TSSC cost model v1</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="sidebar-foot">
+        All figures are calculated live from the original IRENA workbook formulas.
+        <div style="margin-top:8px"><button class="btn small ghost" style="color:inherit" data-action="toggle-theme">◐ Theme</button></div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="content" id="content"><div class="empty">Loading model…</div></main>
+    </div>
+  </div>
+  <div class="modal-back" id="modal"><div class="modal" role="dialog" aria-modal="true" id="modal-body"></div></div>
+  <div class="toast" id="toast"></div>
+  <input type="file" id="file-import" accept="application/json,.json" hidden>
+
+  <script src="assets/vendor/plotly-2.35.2.min.js"></script>
+  <script src="data/model_data.js"></script>
+  <script src="assets/js/formula.js"></script>
+  <script src="assets/js/engine.js"></script>
+  <script src="assets/js/model.js"></script>
+  <script src="assets/js/analysis.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages.js"></script>
+</body>
+</html>
